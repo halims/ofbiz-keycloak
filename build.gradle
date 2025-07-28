@@ -1,0 +1,67 @@
+plugins {
+    id 'groovy'
+}
+
+group = 'org.apache.ofbiz.keycloak'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    implementation 'org.keycloak:keycloak-core:24.0.0'
+    implementation 'org.keycloak:keycloak-adapter-core:24.0.0'
+    implementation 'com.auth0:java-jwt:4.4.0'
+    compileOnly name: 'ofbiz'
+    implementation 'org.codehaus.groovy:groovy-all:3.0.21'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+jar {
+    baseName = 'keycloak-ofbiz-filter'
+    version = '0.1.0'
+    destinationDir = file("$buildDir")
+}
+
+task createConfigMap(dependsOn: jar) {
+    doLast {
+        def jarFile = file("build/keycloak-ofbiz-filter-0.1.0.jar")
+        def patchFile = file("patch-ofbiz-component.sh")
+        def keycloakConfigFile = file("config/keycloak-config.xml")
+        def outputYaml = file("config/keycloak-ofbiz-filter-configmap.yaml")
+        if (!jarFile.exists()) {
+            println "JAR not found, running build..."
+            exec {
+                commandLine 'gradle', 'build'
+            }
+        }
+        def jarB64 = jarFile.bytes.encodeBase64().toString()
+        def yaml = """apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-ofbiz-filter
+  namespace: ofbiz
+binaryData:
+  'keycloak-ofbiz-filter-0.1.0.jar': ${jarB64}
+"""
+        yaml += "data:\n"
+        if (patchFile.exists()) {
+            yaml += "  patch-ofbiz-component.sh: |\n"
+            patchFile.eachLine { line ->
+                yaml += "    ${line}\n"
+            }
+        }
+        if (keycloakConfigFile.exists()) {
+            yaml += "  keycloak-config.xml: |\n"
+            keycloakConfigFile.eachLine { line ->
+                yaml += "    ${line}\n"
+            }
+        }
+        outputYaml.text = yaml
+        println "ConfigMap generated at config/keycloak-ofbiz-filter-configmap.yaml"
+    }
+}

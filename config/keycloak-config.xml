@@ -1,0 +1,8 @@
+<!-- Example Keycloak configuration for OFBiz integration -->
+<keycloak>
+  <auth-server-url>http://auth.kc.svc.cluster.local:8080/realms</auth-server-url>
+  <realm>ofbiz</realm>
+  <client-id>ofbiz-client</client-id>
+  <secret>your-client-secret</secret>
+  <ssl-required>true</ssl-required>
+</keycloak>

@@ -1,0 +1,15 @@
+<ofbiz-component name="keycloak"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/ofbiz-component.xsd">
+    <resource-loader name="main" type="component"/>
+    <webapp name="keycloak-filter"
+            title="Keycloak Filter"
+            server="default-server"
+            location="webapp/keycloak"
+            mount-point="/rest">
+        <filter name="keycloakAuth"
+                class="id.selzcore.ofbiz.plugins.KeycloakAuthFilter"
+                init-param="keycloak.config=config/keycloak-config.xml"/>
+        <filter-mapping name="keycloakAuth" url-pattern="/*"/>
+    </webapp>
+</ofbiz-component>

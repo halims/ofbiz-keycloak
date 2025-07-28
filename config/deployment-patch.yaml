@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ofbiz
+  namespace: ofbiz
+spec:
+  template:
+    spec:
+      volumes:
+        - name: keycloak-ofbiz-filter-jar
+          configMap:
+            name: keycloak-ofbiz-filter
+            items:
+              - key: keycloak-ofbiz-filter-0.1.0.jar
+                path: keycloak-ofbiz-filter-0.1.0.jar
+        - name: keycloak-ofbiz-component
+          configMap:
+            name: keycloak-ofbiz-filter
+            items:
+              - key: ofbiz-component.xml
+                path: ofbiz-component.xml
+        - name: keycloak-config
+          configMap:
+            name: keycloak-ofbiz-filter
+            items:
+              - key: keycloak-config.xml
+                path: keycloak-config.xml
+      containers:
+        - name: ofbiz
+          volumeMounts:
+            - name: keycloak-ofbiz-filter-jar
+              mountPath: /ofbiz/plugins/keycloak-ofbiz-filter-0.1.0.jar
+              subPath: keycloak-ofbiz-filter-0.1.0.jar
+            - name: keycloak-ofbiz-component
+              mountPath: /ofbiz/plugins/keycloak/ofbiz-component.xml
+              subPath: ofbiz-component.xml
+            - name: keycloak-config
+              mountPath: /ofbiz/config/keycloak-config.xml
+              subPath: keycloak-config.xml
