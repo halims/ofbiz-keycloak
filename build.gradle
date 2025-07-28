@@ -30,7 +30,7 @@ jar {
 task createConfigMap(dependsOn: jar) {
     doLast {
         def jarFile = file("build/keycloak-ofbiz-filter-0.1.0.jar")
-        def patchFile = file("patch-ofbiz-component.sh")
+        def pluginConfigFile = file("config/ofbiz-component.xml")
         def keycloakConfigFile = file("config/keycloak-config.xml")
         def outputYaml = file("config/keycloak-ofbiz-filter-configmap.yaml")
         if (!jarFile.exists()) {
@@ -49,9 +49,9 @@ binaryData:
   'keycloak-ofbiz-filter-0.1.0.jar': ${jarB64}
 """
         yaml += "data:\n"
-        if (patchFile.exists()) {
-            yaml += "  patch-ofbiz-component.sh: |\n"
-            patchFile.eachLine { line ->
+        if (pluginConfigFile.exists()) {
+            yaml += "  ofbiz-component.xml: |\n"
+            pluginConfigFile.eachLine { line ->
                 yaml += "    ${line}\n"
             }
         }
